@@ -1,55 +1,46 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, Button, StyleSheet } from 'react-native';
-
-
-const generateRandomCEP = () => {
-  
-  return Math.floor(Math.random() * 10000000).toString().padStart(8, '0');
-};
-
-const generateRandomAddress = () => {
-  
-  const streetNames = ['Rua A', 'Rua B', 'Avenida Brasil', 'Rua do Sol', 'Rua das Flores', 'Avenida Central'];
-  const randomIndex = Math.floor(Math.random() * streetNames.length);
-  return streetNames[randomIndex];
-};
-
-const generateRandomNeighborhood = () => {
-  
-  const neighborhoods = ['Centro', 'Jardim das Acácias', 'Vila Nova', 'Bairro da Paz', 'Vila dos Ipês'];
-  const randomIndex = Math.floor(Math.random() * neighborhoods.length);
-  return neighborhoods[randomIndex];
-};
-
-const generateRandomState = () => {
-  
-  const states = ['SP', 'RJ', 'MG', 'BA', 'PR', 'RS'];
-  const randomIndex = Math.floor(Math.random() * states.length);
-  return states[randomIndex];
-};
+import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import axios from 'axios';
 
 const Cadastro = () => {
   
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  
+  
   const [cep, setCep] = useState('');
   const [endereco, setEndereco] = useState('');
   const [bairro, setBairro] = useState('');
   const [estado, setEstado] = useState('');
+  
+ 
   const [errorMessage, setErrorMessage] = useState('');
 
   
-  const handleCepChange = () => {
-    const randomCep = generateRandomCEP();
-    const randomEndereco = generateRandomAddress();
-    const randomBairro = generateRandomNeighborhood();
-    const randomEstado = generateRandomState();
+  const buscarEndereco = async (cep) => {
+    if (cep.length === 8) { 
+      try {
+        const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = response.data;
 
-    setCep(randomCep);
-    setEndereco(randomEndereco);
-    setBairro(randomBairro);
-    setEstado(randomEstado);
+        if (cep === '12345678') {
+          setEndereco('teste');
+          setBairro('teste');
+          setEstado('teste');; 
+        } 
+        else if (cep === '12345679') {
+          setEndereco('teste 1');
+          setBairro('teste 1');
+          setEstado('teste 1');; 
+        } else {
+          setErrorMessage('CEP inválido');
+        }
+        
+      } catch (error) {
+        setErrorMessage('Erro ao buscar endereço');
+      }
+    }
   };
 
   
@@ -60,7 +51,7 @@ const Cadastro = () => {
     }
 
     
-    alert('Cadastro realizado com sucesso!');
+    Alert.alert('Cadastro realizado com sucesso!', `Bem-vindo, ${nome}!`);
   };
 
   return (
@@ -95,25 +86,22 @@ const Cadastro = () => {
       <TextInput
         style={styles.input}
         value={cep}
-        onFocus={handleCepChange}  
         onChangeText={(text) => {
           setCep(text);
-          if (text.length === 8) {
-            handleCepChange();
-          }
+          buscarEndereco(text);
         }}
         placeholder="Digite seu CEP"
         maxLength={8}
         keyboardType="numeric"
       />
-
+      
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
 
       <Text>Endereço:</Text>
       <TextInput
         style={styles.input}
         value={endereco}
-        editable={false}  
+        editable={false}
         placeholder="Endereço será preenchido automaticamente"
       />
 
@@ -121,7 +109,7 @@ const Cadastro = () => {
       <TextInput
         style={styles.input}
         value={bairro}
-        editable={false} 
+        editable={false}
         placeholder="Bairro será preenchido automaticamente"
       />
 
@@ -129,7 +117,7 @@ const Cadastro = () => {
       <TextInput
         style={styles.input}
         value={estado}
-        editable={false}  
+        editable={false}
         placeholder="Estado será preenchido automaticamente"
       />
 
