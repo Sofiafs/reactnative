@@ -34,7 +34,7 @@ const Login = ({ navigation }) => {
         placeholder="Digite sua senha"
       />
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      <Button title="Entrar" onPress={handleLogin} />
+      <Button title="Entrar" onPress={() => navigation.navigate('LoginFeito')} />
     </View>
   );
 };
